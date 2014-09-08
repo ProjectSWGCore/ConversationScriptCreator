@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.projectswg.tools.csc.compiler
+OpenIDE-Module-Localizing-Bundle: com/projectswg/tools/csc/compiler/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
