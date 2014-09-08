@@ -16,7 +16,6 @@ import javax.swing.JOptionPane;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 public class Compiler {
 
@@ -28,7 +27,7 @@ public class Compiler {
     
     public void compile() throws IOException {
 
-        TopComponent component = WindowManager.getDefault().findTopComponent("EditorTopComponent");
+        TopComponent component = TopComponent.getRegistry().getActivated();
         if (component == null || !(component instanceof EditorTopComponent))
             return;
         

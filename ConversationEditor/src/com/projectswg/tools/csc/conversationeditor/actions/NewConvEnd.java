@@ -16,7 +16,6 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 @ActionID(
         category = "Edit",
@@ -24,7 +23,7 @@ import org.openide.windows.WindowManager;
 )
 @ActionRegistration(
         iconBase = "com/projectswg/tools/csc/conversationeditor/actions/conversation_tb_end.png",
-        displayName = "#CTL_NewConvEnd"
+        displayName = "New End Conversation"
 )
 @ActionReferences({
     @ActionReference(path = "Menu/Edit", position = 1362),
@@ -35,7 +34,7 @@ public final class NewConvEnd implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        TopComponent component = WindowManager.getDefault().findTopComponent("EditorTopComponent");
+        TopComponent component = TopComponent.getRegistry().getActivated();
         if (component == null || !(component instanceof EditorTopComponent))
             return;
         
@@ -45,7 +44,7 @@ public final class NewConvEnd implements ActionListener {
         if (scene == null)
             return;
         
-        int id = scene.getNodes().size() + 1;
+        int id = scene.getNodes().size();
         scene.addNode(new ConversationNode("New End Conversation " + String.valueOf(id), false, id, true, false, 0));
         
         scene.validate();

@@ -1,16 +1,20 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.actions.SaveConversation;
+import java.awt.Point;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
+import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
+import org.xml.sax.SAXException;
 
-/**
- * Top component which displays something.
- */
 @ConvertAsProperties(
         dtd = "-//com.projectswg.tools.csc.conversationeditor//Editor//EN",
         autostore = false
@@ -24,7 +28,7 @@ import org.openide.windows.TopComponent;
 @ActionID(category = "Window", id = "com.projectswg.tools.csc.conversationeditor.EditorTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
-        displayName = "Conversastion Editor",
+        displayName = "Editor",
         preferredID = "EditorTopComponent"
 )
 @Messages({
@@ -37,31 +41,40 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     private final ExplorerManager mgr = new ExplorerManager();
     private final SceneView scene;
     
+    // New Conversation
     public EditorTopComponent() {
         initComponents();
-        setName(Bundle.CTL_EditorTopComponent());
+
         setToolTipText(Bundle.HINT_EditorTopComponent());
 
         SceneView scene = new SceneView(mgr);
         scrollPane.setViewportView(scene.createView());
 
-        scene.addNode(new ConversationNode("Begin Conversation", false, 1, false, true, 0));
-        scene.addNode(new ConversationNode("", false, 1, true, false, 0));
-        /*
-        // Testing widgets!
-        Widget n1 = scene.addNode(new ConversationNode("conversation/c_newbie_mentor:s_1063", false, 1, false));
-        n1.setPreferredLocation(new Point(10, 100));
+        setName(Bundle.CTL_EditorTopComponent() + " - *New Conversation*");
         
-        Widget n2 = scene.addNode(new ConversationNode("conversation/c_newbie_mentor:s_109", true, 2, false));
-        n2.setPreferredLocation(new Point(480, 100));
-        
-        Widget n3 = scene.addNode(new ConversationNode("conversation/c_newbie_mentor:s_1067", true, 3, false));
-        n3.setPreferredLocation(new Point(480, 150));*/
-        
+        scene.addNode(new ConversationNode("Begin Conversation", false, 0, false, true, 0));
+        scene.addNode(new ConversationNode("End Conversation", false, 1, true, false, 0));
+
         associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));   
         this.scene = scene;
     }
+    
+    // Open Conversation
+    public EditorTopComponent(String convName) {
+         initComponents();
 
+        setToolTipText(Bundle.HINT_EditorTopComponent());
+
+        SceneView scene = new SceneView(mgr);
+        scene.setSceneName(convName);
+        
+        scrollPane.setViewportView(scene.createView());
+
+        setName(Bundle.CTL_EditorTopComponent() + " - " + (scene.getSceneName().equals("") ? "*New Conversation*" : scene.getSceneName()));
+        
+        associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));   
+        this.scene = scene;       
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -94,7 +107,11 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        /*try {
+            SaveConversation.save(scene);
+        } catch (ParserConfigurationException | IOException | SAXException | TransformerException ex) {
+            Exceptions.printStackTrace(ex);
+        }*/
     }
 
     void writeProperties(java.util.Properties p) {

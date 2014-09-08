@@ -11,7 +11,6 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
-import org.openide.windows.WindowManager;
 
 @ActionID(
         category = "File",
@@ -30,7 +29,7 @@ public final class NewConvOption implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        TopComponent component = WindowManager.getDefault().findTopComponent("EditorTopComponent");
+        TopComponent component = TopComponent.getRegistry().getActivated();
         if (component == null || !(component instanceof EditorTopComponent))
             return;
         
@@ -40,7 +39,7 @@ public final class NewConvOption implements ActionListener {
         if (scene == null)
             return;
         
-        int id = scene.getNodes().size() + 1;
+        int id = scene.getNodes().size();
         scene.addNode(new ConversationNode("New Conversation Option " + String.valueOf(id), true, id, false, false, 0));
         
         scene.validate();

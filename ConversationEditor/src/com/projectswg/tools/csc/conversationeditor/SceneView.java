@@ -2,7 +2,19 @@ package com.projectswg.tools.csc.conversationeditor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 import javax.swing.JOptionPane;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.graph.GraphScene;
 import org.netbeans.api.visual.widget.LayerWidget;
@@ -10,12 +22,17 @@ import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
 
 public class SceneView extends GraphScene<ConversationNode, String>{
     private final LayerWidget backgroundLayer;
     private final LayerWidget mainLayer;
     private final LayerWidget connectionLayer;
     private final ExplorerManager mgr;
+    
+    private String name = "";
     
     public SceneView(ExplorerManager mgr) {
         setLookFeel(new ConversationLookFeel());
@@ -91,4 +108,11 @@ public class SceneView extends GraphScene<ConversationNode, String>{
         return connectionLayer;
     }
     
+    public String getSceneName() {
+        return name;
+    }
+    
+    public void setSceneName(String name) {
+        this.name = name;
+    }
 }
