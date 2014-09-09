@@ -8,7 +8,7 @@ import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
 
 public class ConversationNode extends AbstractNode implements Lookup.Provider {
-    private final int id;
+    private int id;
     private int optionId;
     private String displayText;
     private String stf;
@@ -24,10 +24,10 @@ public class ConversationNode extends AbstractNode implements Lookup.Provider {
         this.stf = stf;
         this.option = isOption;
         this.displayText = "";
-        this.id = id;
         this.endNode = isEndNode;
         this.startNode = isStartNode;
         this.optionId = optionId;
+        this.id = id;
         
         // Properties Window
         if (!isStartNode)
@@ -74,6 +74,10 @@ public class ConversationNode extends AbstractNode implements Lookup.Provider {
 
     public int getId() {
         return id;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
     }
     
     public boolean isCompiled() {

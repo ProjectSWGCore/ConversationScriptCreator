@@ -44,7 +44,7 @@ public final class NewConvResponse implements ActionListener {
         if (scene == null)
             return;
 
-        int id = scene.getNodes().size();
+        int id = scene.getNextId();
         scene.addNode(new ConversationNode("New Conversation Response " + String.valueOf(id), false, id, false, false, 0));
         scene.validate();
     }

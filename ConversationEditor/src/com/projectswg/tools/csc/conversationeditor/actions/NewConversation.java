@@ -33,6 +33,8 @@ public final class NewConversation implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         EditorTopComponent newEditor = new EditorTopComponent();
+        newEditor.blankSlate();
+        newEditor.getScene().validate();
         newEditor.open();
         newEditor.requestActive();
     }

@@ -18,13 +18,14 @@ import org.openide.util.LookupListener;
 public class ConversationWidget extends IconNodeWidget implements LookupListener {
     private final ConversationNode attachedNode;
     private final ExplorerManager mgr;
+    private boolean selected;
     
     public ConversationWidget(SceneView scene, final ExplorerManager mgr, final ConversationNode node, boolean endConversation) {
         super(scene.getScene());
         
         this.attachedNode = node;
         this.mgr = mgr;
-        
+
         if (node.isEndNode()) {
             setLabel(node.getStf());
             setImage(ImageUtilities.loadImage("com/projectswg/tools/csc/conversationeditor/conversation_end.png"));
@@ -50,9 +51,23 @@ public class ConversationWidget extends IconNodeWidget implements LookupListener
             public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation) {
                 if (!(widget instanceof ConversationWidget))
                     return suggestedLocation;
+                ConversationWidget cWidget = (ConversationWidget) widget;
+                ConversationNode node = cWidget.getAttachedNode();
                 
-                if (((ConversationWidget) widget).getAttachedNode().isLocked())
+                if (node.isLocked())
                     return originalLocation;
+                
+                if (cWidget.getExpManager().getRootContext() != node) {
+                    cWidget.getExpManager().setRootContext(node);
+
+                    ConversationNode[] nodes = new ConversationNode[1];
+                    nodes[0] = node;
+                    try {
+                        cWidget.getExpManager().setSelectedNodes(nodes);
+                    } catch (PropertyVetoException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
                 
                 return suggestedLocation;
             }
@@ -96,6 +111,14 @@ public class ConversationWidget extends IconNodeWidget implements LookupListener
     
     public ExplorerManager getExpManager() {
         return mgr;
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     @Override

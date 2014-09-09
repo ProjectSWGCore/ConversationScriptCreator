@@ -3,10 +3,11 @@ package com.projectswg.tools.csc.conversationeditor;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 import javax.swing.SwingUtilities;
-import org.netbeans.api.visual.graph.GraphScene;
+import org.netbeans.api.visual.anchor.AnchorFactory;
+import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.w3c.dom.Attr;
@@ -27,7 +28,7 @@ public class SceneSaver {
     private static final String NODEID_ATTR = "nodeID"; // NOI18N
     private static final String X_NODE = "posX"; // NOI18N
     private static final String Y_NODE = "posY"; // NOI18N
-    private static final String SOURCE = "source";
+    private static final String TARGETS = "targets";
     private static final String LOCKED = "locked";
     private static final String STF = "stf";
     private static final String OPTION_ID = "optionId";
@@ -41,7 +42,8 @@ public class SceneSaver {
         Node properties = file.createElement("Properties");
         root.appendChild(properties);
         
-        setTextProperty(properties, file, "name", scene.getSceneName());
+        setTextProperty(properties, file, "zoom", Double.toString(scene.getZoomFactor()));
+        setTextProperty(properties, file, "highestId", String.valueOf(scene.getNextId()));
         
         Node sceneXMLNode = file.createElement(NODE_ELEMENT);
         root.appendChild(sceneXMLNode);
@@ -49,7 +51,7 @@ public class SceneSaver {
         setAttribute(file, sceneXMLNode, VERSION_ATTR, VERSION_VALUE_1); // NOI18N
         
         LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks = scene.getConversationLinks();
-        
+
         for (ConversationNode node : scene.getNodes ()) {
                 Widget widget = scene.findWidget(node);
                 if (widget != null) {
@@ -66,8 +68,7 @@ public class SceneSaver {
                         else
                             setAttribute(file, dataXMLNode, TYPE, "begin");
                         
-                        if (!node.isStartNode())
-                            setAttribute(file, dataXMLNode, SOURCE, String.valueOf(getSourceNode(conversationLinks, node).getId()));
+                        setAttribute(file, dataXMLNode, TARGETS, getTargets(conversationLinks, node));
 
                         setAttribute(file, dataXMLNode, NODEID_ATTR, String.valueOf(node.getId()));
                         setAttribute(file, dataXMLNode, X_NODE, Integer.toString(location.x));
@@ -83,24 +84,19 @@ public class SceneSaver {
         return root;
     }
 
-    private ConversationNode getSourceNode(LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks, ConversationNode lookNode) {
-        for (Map.Entry<ConversationNode, ArrayList<ConversationNode>> entry : conversationLinks.entrySet()) {
-            if (entry.getValue().contains(lookNode))
-                return entry.getKey();
+    private String getTargets(LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks, ConversationNode source) {
+        String targets = "";
+        if (!conversationLinks.containsKey(source)) {
+            return targets;
         }
-        return null;
+
+        for (ConversationNode nodes : conversationLinks.get(source)) {
+            targets += (targets.equals("") ? String.valueOf(nodes.getId()) : "," + String.valueOf(nodes.getId()));
+        }
+
+        return targets;       
     }
     
-    private ConversationNode getTargetNode(LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks, ConversationNode lookNode) {
-         for (Map.Entry<ConversationNode, ArrayList<ConversationNode>> entry : conversationLinks.entrySet()) {
-            if (entry.getValue().contains(lookNode))
-                return entry.getValue().get(entry.getValue().indexOf(lookNode));
-        }
-        return null;       
-    }
-    
-    // Returns true if deserialization is successfull
-    // sceneXMLNode has to be found in the XML file first
     public boolean deserializeData(final SceneView scene, final Node sceneXMLNode) {
         if (!VERSION_VALUE_1.equals(getAttributeValue(sceneXMLNode, VERSION_ATTR)))
             return false;
@@ -108,7 +104,7 @@ public class SceneSaver {
         SwingUtilities.invokeLater (new Runnable() {
             @Override
             public void run() {
-                deserializeDataVersion1(scene, sceneXMLNode);
+                deserializeNodeDataVersion1(scene, sceneXMLNode);
                 scene.validate ();
             }
         });
@@ -116,19 +112,86 @@ public class SceneSaver {
         return true;
     }
 
-    private void deserializeDataVersion1(SceneView scene, Node data) {
+    public void deserializeProperties(SceneView scene, Node node) {
+        System.out.println("Got a node!" + node.getNodeType());
+        Element properties = (Element) node;
+        scene.setId(Integer.valueOf(properties.getElementsByTagName("highestId").item(0).getTextContent()));
+    }
+    
+    private void deserializeNodeDataVersion1(SceneView scene, Node data) {
+        HashMap<Integer, ArrayList<Integer>> widgetLinks = new HashMap<>(); // map of what this widget id targets
+        HashMap<Integer, ConversationWidget> widgets = new HashMap<>(); // map of all loaded widget's K = id, V = widget
+        
         for (Node node : getChildNode (data)) {
             if(NODE_NODE.equals(node.getNodeName())) {
-                String nodeID = getAttributeValue(node, NODEID_ATTR);
+                
+                int nodeID = Integer.parseInt(getAttributeValue(node, NODEID_ATTR));
                 int x = Integer.parseInt(getAttributeValue (node, X_NODE));
                 int y = Integer.parseInt(getAttributeValue (node, Y_NODE));
-                Widget widget = scene.findWidget(nodeID);
-                if (widget != null)
+                int optionId = Integer.parseInt(getAttributeValue(node, OPTION_ID));
+
+                boolean locked = Boolean.parseBoolean(getAttributeValue(node, LOCKED));                
+                
+                String targets = getAttributeValue(node, TARGETS);
+                String stf = getAttributeValue(node, STF);
+                String type = getAttributeValue(node, TYPE);
+                
+                ConversationWidget widget = null;
+                // ConversationNode(String stf, boolean isOption, int id, boolean isEndNode, boolean isStartNode, int optionId)
+                switch (type) {
+                    case "option":
+                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, true, nodeID, false, false, optionId));
+                        break;
+                    case "response":
+                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, false, false, optionId));
+                        break;
+                    case "begin":
+                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, false, true, optionId));
+                        break;
+                    case "end":
+                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, true, false, optionId));
+                        break;
+                }
+
+                if (widget != null) {
+                    widget.getAttachedNode().setLocked(locked);
                     widget.setPreferredLocation (new Point (x, y));
+                    widgets.put(nodeID, widget);
+                    
+                    if (!targets.equals("")) {
+                        ArrayList<Integer> targetIds = new ArrayList<>();
+                        if (targets.contains(",")) {
+                            String[] split = targets.split(",");
+                            for (String s : split) {
+                                targetIds.add(Integer.valueOf(s));
+                            }
+                        } else {
+                            targetIds.add(Integer.valueOf(targets));
+                        }
+                        widgetLinks.put(nodeID, targetIds);
+                    }
+                }
             }
         }
+        createConnections(widgetLinks, widgets, scene);
     }
+    
+    private void createConnections(HashMap<Integer, ArrayList<Integer>> links, HashMap<Integer, ConversationWidget> widgets, SceneView scene) {
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : links.entrySet()) {
+            //System.out.println("Creating links for " + widgets.get(entry.getKey()).getAttachedNode().getStf());
+            for (Integer targetId : entry.getValue()) {
 
+                ConnectionWidget conn = new ConnectionWidget(scene);
+                conn.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+                
+                conn.setTargetAnchor(AnchorFactory.createRectangularAnchor(widgets.get(targetId)));
+                conn.setSourceAnchor(AnchorFactory.createRectangularAnchor(widgets.get(entry.getKey())));
+                
+                scene.getConnectionLayer().addChild(conn);
+            }  
+        }
+    }
+    
     private static String getAttributeValue(Node node, String attr) {
         try {
             if (node != null) {
@@ -164,5 +227,5 @@ public class SceneSaver {
         for (int i = 0; i < nodes.length; i++)
             nodes[i] = childNodes.item (i);
         return nodes;
-    }    
+    }
 }

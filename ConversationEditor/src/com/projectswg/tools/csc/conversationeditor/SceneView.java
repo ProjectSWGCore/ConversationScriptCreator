@@ -5,7 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import javax.swing.JOptionPane;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.graph.GraphScene;
@@ -23,6 +22,9 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     private final ExplorerManager mgr;
     
     private String name = "";
+    private String scenePath = "";
+    
+    private int id = 1;
     
     public SceneView(ExplorerManager mgr) {
         setLookFeel(new ConversationLookFeel());
@@ -44,6 +46,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     @Override
     protected Widget attachNodeWidget(ConversationNode n) {
+        
         final ConversationWidget widget = new ConversationWidget(this, mgr, n, n.isEndNode());
         widget.getActions().addAction(createObjectHoverAction());
         
@@ -104,6 +107,27 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     public void setSceneName(String name) {
         this.name = name;
+    }
+    
+    public String getScenePath() {
+        return this.scenePath;
+    }
+    
+    public void setScenePath(String path) {
+        this.scenePath = path;
+    }
+
+    public ExplorerManager getManager() {
+        return mgr;
+    }
+    
+    public int getNextId() {
+        this.id = id +1;
+        return id++;
+    }
+    
+    public void setId(int id) {
+        this.id = id;
     }
     
     public LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> getConversationLinks() {

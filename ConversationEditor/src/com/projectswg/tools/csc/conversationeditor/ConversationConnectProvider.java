@@ -45,14 +45,51 @@ public class ConversationConnectProvider implements ConnectProvider {
                 JOptionPane.showMessageDialog(null, "Cannot attach end conversation node to responses/options!", "Conversation Script Creator", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
+            ConversationNode cSource = ((ConversationWidget) source).getAttachedNode();
+            ConversationNode cTarget = ((ConversationWidget) target).getAttachedNode();
+            
+            if (cSource.isOption()) {
+                if (cTarget.isOption())
+                    return;
+                
+                else if (cTarget.isStartNode())
+                    return;
+                
+            } else if (cSource.isStartNode()) {
+                if (cTarget.isEndNode())
+                    return;
+            } else if (cSource.isEndNode()) {
+                return;
+                
+            } else { // Response nodes
+                if (cTarget.isEndNode())
+                    return;
+                
+                else if (cTarget.isStartNode())
+                    return;
+            }
+
+            /* This won't work for preventing linking to same node 2x's. Need to find another way :(
+            if (scene.getConnectionLayer().getChildren().size() > 0) {
+                for (Widget widget : scene.getConnectionLayer().getChildren()) {
+                    System.out.println("CHILD: " + widget.toString());
+                    if (!(widget instanceof ConnectionWidget)) {
+                        continue;
+                    }
+
+                    ConnectionWidget existingConn = (ConnectionWidget) widget;
+                    if (existingConn.getTargetAnchor().getRelatedWidget() == target) {
+                        System.out.println("SAME");
+                        return;
+                    }
+                }
+            }*/
+            
             ConnectionWidget conn = new ConnectionWidget(scene);
             conn.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
             conn.setTargetAnchor(AnchorFactory.createRectangularAnchor(target));
             conn.setSourceAnchor(AnchorFactory.createRectangularAnchor(source));
             scene.getConnectionLayer().addChild(conn);
-            
-            ((ConversationWidget)source).getAttachedNode().setCompiled(false);
-            ((ConversationWidget)target).getAttachedNode().setCompiled(false);
         }        
     }
 }

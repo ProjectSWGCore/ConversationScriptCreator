@@ -16,3 +16,5 @@ hs_err_pid*
 /ConversationEditor/build/
 /dist/
 /nbproject/private/
+/ConversationEditor/nbproject/private/
+/ConversationCompiler/nbproject/private/

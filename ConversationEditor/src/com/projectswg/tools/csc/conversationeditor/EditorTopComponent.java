@@ -1,30 +1,26 @@
 package com.projectswg.tools.csc.conversationeditor;
 
-import com.projectswg.tools.csc.conversationeditor.actions.SaveConversation;
-import java.awt.Point;
-import java.io.IOException;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
+import com.projectswg.tools.csc.conversationeditor.actions.OpenConversation;
+import java.io.File;
+import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.ExplorerUtils;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
-import org.xml.sax.SAXException;
 
 @ConvertAsProperties(
         dtd = "-//com.projectswg.tools.csc.conversationeditor//Editor//EN",
-        autostore = false
+        autostore = true
 )
 @TopComponent.Description(
         preferredID = "EditorTopComponent",
         //iconBase="SET/PATH/TO/ICON/HERE", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = true)
+@TopComponent.Registration(mode = "editor", openAtStartup = false)
 @ActionID(category = "Window", id = "com.projectswg.tools.csc.conversationeditor.EditorTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
@@ -40,41 +36,21 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
 
     private final ExplorerManager mgr = new ExplorerManager();
     private final SceneView scene;
+    private String activePath = "";
     
     // New Conversation
     public EditorTopComponent() {
         initComponents();
 
         setToolTipText(Bundle.HINT_EditorTopComponent());
-
-        SceneView scene = new SceneView(mgr);
-        scrollPane.setViewportView(scene.createView());
-
-        setName(Bundle.CTL_EditorTopComponent() + " - *New Conversation*");
+        setName("*New Conversation*");
         
-        scene.addNode(new ConversationNode("Begin Conversation", false, 0, false, true, 0));
-        scene.addNode(new ConversationNode("End Conversation", false, 1, true, false, 0));
-
+        this.scene = new SceneView(mgr);
+        scrollPane.setViewportView(scene.createView());
         associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));   
-        this.scene = scene;
+        
     }
     
-    // Open Conversation
-    public EditorTopComponent(String convName) {
-         initComponents();
-
-        setToolTipText(Bundle.HINT_EditorTopComponent());
-
-        SceneView scene = new SceneView(mgr);
-        scene.setSceneName(convName);
-        
-        scrollPane.setViewportView(scene.createView());
-
-        setName(Bundle.CTL_EditorTopComponent() + " - " + (scene.getSceneName().equals("") ? "*New Conversation*" : scene.getSceneName()));
-        
-        associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));   
-        this.scene = scene;       
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -100,30 +76,40 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane scrollPane;
     // End of variables declaration//GEN-END:variables
+    
     @Override
     public void componentOpened() {
-        // TODO add custom code on component opening
+        if (activePath.equals("")) {
+           // blankSlate();
+           // scene.validate();
+            return;
+        }
+        
+        File file = new File(activePath);
+
+        if (!file.exists()) {
+            JOptionPane.showMessageDialog(null, "Couldn't open conversation file " + file.getAbsolutePath()
+                    + " because it no longer exists.", "Conversation Script Editor", JOptionPane.INFORMATION_MESSAGE);
+            blankSlate();
+            scene.validate();
+        } else {
+            OpenConversation.open(file, this);
+        }
     }
 
     @Override
     public void componentClosed() {
-        /*try {
-            SaveConversation.save(scene);
-        } catch (ParserConfigurationException | IOException | SAXException | TransformerException ex) {
-            Exceptions.printStackTrace(ex);
-        }*/
+        // TODO: save msg
     }
 
     void writeProperties(java.util.Properties p) {
-        // better to version settings since initial version as advocated at
-        // http://wiki.apidesign.org/wiki/PropertyFiles
-        p.setProperty("version", "1.0");
-        // TODO store your settings
+        //p.setProperty("version", "1.0");
+        p.setProperty("activePath", scene.getScenePath());
     }
 
     void readProperties(java.util.Properties p) {
-        String version = p.getProperty("version");
-        // TODO read your settings according to their version
+        //String version = p.getProperty("version");
+        this.activePath = p.getProperty("activePath");
     }
 
     @Override
@@ -133,5 +119,10 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
 
     public SceneView getScene() {
         return scene;
+    }
+    
+    public void blankSlate() {
+        scene.addNode(new ConversationNode("Begin Conversation", false, 0, false, true, 0));
+        scene.addNode(new ConversationNode("End Conversation", false, 1, true, false, 0));
     }
 }
