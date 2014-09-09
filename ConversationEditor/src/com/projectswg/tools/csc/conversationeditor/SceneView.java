@@ -2,29 +2,19 @@ package com.projectswg.tools.csc.conversationeditor;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.graph.GraphScene;
+import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.xml.sax.SAXException;
 
 public class SceneView extends GraphScene<ConversationNode, String>{
     private final LayerWidget backgroundLayer;
@@ -114,5 +104,30 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     public void setSceneName(String name) {
         this.name = name;
+    }
+    
+    public LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> getConversationLinks() {
+        List<Widget> connectedNodes = connectionLayer.getChildren();
+        LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks = new LinkedHashMap<>();
+            
+        for (Widget widget : connectedNodes) {
+            ConnectionWidget connection = (ConnectionWidget) widget;
+                
+            ConversationWidget source = (ConversationWidget) connection.getSourceAnchor().getRelatedWidget();
+            ConversationNode sNode = source.getAttachedNode();
+                
+            if (!conversationLinks.containsKey(sNode)) {
+                conversationLinks.put(sNode, new ArrayList<ConversationNode>());
+            }
+                
+            ConversationWidget target = (ConversationWidget) connection.getTargetAnchor().getRelatedWidget();
+            ConversationNode tNode = target.getAttachedNode();
+                
+            if (conversationLinks.containsKey(sNode))
+                conversationLinks.get(sNode).add(tNode);
+            else
+                System.out.println("No key for node " + sNode.getStf());
+        }
+        return conversationLinks;
     }
 }

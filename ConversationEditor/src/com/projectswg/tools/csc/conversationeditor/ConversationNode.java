@@ -171,7 +171,7 @@ class StfProperty extends PropertySupport.ReadWrite<String> {
     private final ConversationNode node;
     
     public StfProperty(ConversationNode node) {
-        super("stf", String.class, "STF", "STF file for this conversation node. Ex: conversation/c_newbie_mentor:s_109");
+        super("stf", String.class, "STF", "STF file for this conversation node, excluding conversation/. Ex: conversation/c_newbie_mentor:s_109 would be c_newbie_mentor:s_109");
         this.setValue("oneline", true);
         this.node = node;
     }

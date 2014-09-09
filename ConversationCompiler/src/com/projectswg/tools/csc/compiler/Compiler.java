@@ -1,7 +1,6 @@
 package com.projectswg.tools.csc.compiler;
 
 import com.projectswg.tools.csc.conversationeditor.ConversationNode;
-import com.projectswg.tools.csc.conversationeditor.ConversationWidget;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
 import com.projectswg.tools.csc.conversationeditor.SceneView;
 import java.io.BufferedWriter;
@@ -10,11 +9,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
-import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.Widget;
 import org.openide.windows.TopComponent;
 
 public class Compiler {
@@ -43,30 +39,7 @@ public class Compiler {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(file.getAbsolutePath()))) {
             createBaseFile(bw);
             
-            List<Widget> connectedNodes = scene.getConnectionLayer().getChildren();
-            LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks = new LinkedHashMap<>();
-            
-            for (Widget widget : connectedNodes) {
-                ConnectionWidget connection = (ConnectionWidget) widget;
-                
-                ConversationWidget source = (ConversationWidget) connection.getSourceAnchor().getRelatedWidget();
-                ConversationNode sNode = source.getAttachedNode();
-                
-                if (!conversationLinks.containsKey(sNode)) {
-                    conversationLinks.put(sNode, new ArrayList<ConversationNode>());
-                }
-                
-                ConversationWidget target = (ConversationWidget) connection.getTargetAnchor().getRelatedWidget();
-                ConversationNode tNode = target.getAttachedNode();
-                
-                if (conversationLinks.containsKey(sNode))
-                    conversationLinks.get(sNode).add(tNode);
-                else
-                    System.out.println("No key for node " + sNode.getStf());
-                
-                //System.out.println("This connection widget came from " + sNode.getStf() + " and is pointing to " + tNode.getStf());
-                //compiler.compileTarget(tNode);
-            }
+            LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks = scene.getConversationLinks();
             
             for (Map.Entry<ConversationNode, ArrayList<ConversationNode>> entry : conversationLinks.entrySet()) {
                 /*System.out.println("Handling for node " + entry.getKey().getStf());
@@ -105,14 +78,15 @@ public class Compiler {
         for (ConversationNode selectedOption : options) {
             bw.write("    " + (options.indexOf(selectedOption) > 0 ? "elif" : "if") + " selection == " + options.indexOf(selectedOption) + ":\n");
             if (conversationLinks.containsKey(selectedOption)) {
-                bw.write("        #Handler for Option " + selectedOption.getStf() + "\n");
+                bw.write("        #Handler for Option Node " + selectedOption.getId() + "\n");
                 for (ConversationNode handleNode : conversationLinks.get(selectedOption)) {
                     if (!handleNode.isOption()) {
                         if (conversationLinks.get(handleNode) == null) {
                             bw.write("        core.conversationService.sendStopConversation(actor, npc, 'conversation/c_newbie_secondchance', 's_136')\n");
                         } else {
                             createOptions(bw, conversationLinks.get(handleNode), count++, "        ");
-                            bw.write("        core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@" + handleNode.getStf() + "')\n");
+                            bw.write("        core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@conversation/" 
+                                    + handleNode.getStf() + "')\n");
                             handleFuncs.put(handleNode, conversationLinks.get(handleNode)); // Put these nodes in list so we can create the handlers later.
                         }
                     }
@@ -142,16 +116,16 @@ public class Compiler {
                 orderedOptions.add(unOrdered.getOptionId(), unOrdered);
             }
             for (ConversationNode option : orderedOptions) {
-                bw.write("    options.add(ConversationOption(OutOfBand.ProsePackage('@" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
+                bw.write("    options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/"  + option.getStf() +"'), " + options.indexOf(option) + ")\n");
             }         
         } else { 
             for (ConversationNode option : options) {
-                bw.write("    options.add(ConversationOption(OutOfBand.ProsePackage('@" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
+                bw.write("    options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/"  + option.getStf() +"'), " + options.indexOf(option) + ")\n");
             }
         }
         
         bw.write("    core.conversationService.sendConversationOptions(actor, npc, handleOptionScreen" + String.valueOf(handleScreenNum) + ")\n");
-        bw.write("    core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@" + response.getStf() + "'))\n");
+        bw.write("    core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@conversation/" + response.getStf() + "'))\n");
         bw.write("    return\n");
         bw.newLine();
         createResponseHandler(bw, options, handleScreenNum, conversationLinks);
@@ -166,11 +140,11 @@ public class Compiler {
                 orderedOptions.add(unOrdered.getOptionId(), unOrdered);
             }
             for (ConversationNode option : orderedOptions) {
-                bw.write(space + "options.add(ConversationOption(OutOfBand.ProsePackage('@" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
+                bw.write(space + "options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
             }         
         } else {
             for (ConversationNode option : options) {
-                bw.write(space + "options.add(ConversationOption(OutOfBand.ProsePackage('@" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
+                bw.write(space + "options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/" + option.getStf() +"'), " + options.indexOf(option) + ")\n");
             }
         }
         bw.write(space + "core.conversationService.sendConversationOptions(actor, npc, handleOptionScreen" + String.valueOf(handleScreenNum) + ")\n");
