@@ -108,6 +108,7 @@
             <public-packages>
                 <package>com.projectswg.tools.csc.conversationeditor</package>
                 <package>com.projectswg.tools.csc.conversationeditor.actions</package>
+                <package>com.projectswg.tools.csc.conversationeditor.nodes</package>
             </public-packages>
         </data>
     </configuration>
