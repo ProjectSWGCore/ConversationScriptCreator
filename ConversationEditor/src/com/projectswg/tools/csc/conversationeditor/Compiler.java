@@ -114,7 +114,7 @@ public class Compiler {
         
         int currentHandler = handleNum + 1;
         for (Map.Entry<ConversationNode, ArrayList<ConversationNode>> handleNode : handleFuncs.entrySet()) {
-            bw.write("# Handle Response for " + handleNode.getKey().getStf());
+            bw.write("# Handle Response for " + handleNode.getKey().getStf() + "\n");
             createResponseHandler(bw, handleNode.getValue(), currentHandler++, conversationLinks);
         }
     }
@@ -141,7 +141,7 @@ public class Compiler {
         bw.write(indent4 + "core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@conversation/" + response.getStf() + "'))\n");
         bw.write(indent4 + "return\n");
         bw.newLine();
-        bw.write("# Handle Response for " + response.getStf());
+        bw.write("# Handle Response for " + response.getStf() + "\n");
         createResponseHandler(bw, options, handleScreenNum, conversationLinks);
     }
     
