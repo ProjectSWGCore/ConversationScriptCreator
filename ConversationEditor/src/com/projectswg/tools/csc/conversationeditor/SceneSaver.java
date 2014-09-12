@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

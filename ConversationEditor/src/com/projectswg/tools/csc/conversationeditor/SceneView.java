@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;

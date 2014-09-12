@@ -1,6 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
-import com.projectswg.tools.csc.conversationeditor.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
 import com.projectswg.tools.csc.conversationeditor.SceneView;
 import java.io.BufferedWriter;

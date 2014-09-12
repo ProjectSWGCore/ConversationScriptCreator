@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
 import org.netbeans.api.visual.action.ActionFactory;

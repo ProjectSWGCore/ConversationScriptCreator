@@ -1,4 +1,4 @@
-package com.projectswg.tools.csc.conversationeditor;
+package com.projectswg.tools.csc.conversationeditor.nodes;
 
 import java.lang.reflect.InvocationTargetException;
 import org.openide.nodes.AbstractNode;

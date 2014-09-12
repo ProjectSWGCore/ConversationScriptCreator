@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import com.projectswg.tools.csc.conversationeditor.actions.OpenConversation;
 import java.io.File;
 import javax.swing.JOptionPane;

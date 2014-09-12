@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.awt.Point;
 import javax.swing.JOptionPane;
 import org.netbeans.api.visual.action.ConnectProvider;
