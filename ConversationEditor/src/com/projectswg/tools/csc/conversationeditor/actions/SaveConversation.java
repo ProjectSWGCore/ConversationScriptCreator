@@ -46,7 +46,7 @@ import org.xml.sax.SAXException;
         displayName = "Save"
 )
 @ActionReferences({
-    @ActionReference(path = "Menu/File", position = -90, separatorBefore = -140),
+    @ActionReference(path = "Menu/File", position = 3, separatorBefore = -140),
     @ActionReference(path = "Toolbars/File", position = 500),
     @ActionReference(path = "Shortcuts", name = "D-S")
 })

@@ -38,7 +38,6 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     private final SceneView scene;
     private String activePath = "";
     
-    // New Conversation
     public EditorTopComponent() {
         initComponents();
 
@@ -47,8 +46,9 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
         
         this.scene = new SceneView(mgr);
         scrollPane.setViewportView(scene.createView());
-        associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));   
+        associateLookup(ExplorerUtils.createLookup(mgr, getActionMap()));
         
+        //SystemAction.get(CompileWizardAction.class).setEnabled(true);        
     }
     
     /**
@@ -79,21 +79,22 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     
     @Override
     public void componentOpened() {
-        if (activePath.equals("")) {
-           // blankSlate();
-           // scene.validate();
+        if (activePath.isEmpty() && scene.getScenePath().isEmpty()) {
+            blankSlate();
             return;
         }
         
-        File file = new File(activePath);
+        if (!scene.isLoaded()) {
+            File file = new File(activePath);
 
-        if (!file.exists()) {
-            JOptionPane.showMessageDialog(null, "Couldn't open conversation file " + file.getAbsolutePath()
-                    + " because it no longer exists.", "Conversation Script Editor", JOptionPane.INFORMATION_MESSAGE);
-            blankSlate();
-            scene.validate();
-        } else {
-            OpenConversation.open(file, this);
+            if (!file.exists()) {
+                JOptionPane.showMessageDialog(null, "Couldn't open conversation file " + file.getAbsolutePath()
+                        + " because it no longer exists.", "Conversation Script Editor", JOptionPane.INFORMATION_MESSAGE);
+                blankSlate();
+                scene.validate();
+            } else {
+                OpenConversation.open(file, this);
+            }
         }
     }
 
@@ -103,12 +104,10 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     }
 
     void writeProperties(java.util.Properties p) {
-        //p.setProperty("version", "1.0");
         p.setProperty("activePath", scene.getScenePath());
     }
 
     void readProperties(java.util.Properties p) {
-        //String version = p.getProperty("version");
         this.activePath = p.getProperty("activePath");
     }
 

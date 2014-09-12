@@ -23,7 +23,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "New Conversation"
 )
 @ActionReferences({
-    @ActionReference(path = "Menu/File", position = -115),
+    @ActionReference(path = "Menu/File", position = 2),
     @ActionReference(path = "Toolbars/File", position = 400),
     @ActionReference(path = "Shortcuts", name = "D-N")
 })
@@ -33,8 +33,6 @@ public final class NewConversation implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         EditorTopComponent newEditor = new EditorTopComponent();
-        newEditor.blankSlate();
-        newEditor.getScene().validate();
         newEditor.open();
         newEditor.requestActive();
     }

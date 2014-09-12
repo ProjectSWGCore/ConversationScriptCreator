@@ -105,7 +105,6 @@ public class SceneSaver {
             @Override
             public void run() {
                 deserializeNodeDataVersion1(scene, sceneXMLNode);
-                scene.validate ();
             }
         });
 

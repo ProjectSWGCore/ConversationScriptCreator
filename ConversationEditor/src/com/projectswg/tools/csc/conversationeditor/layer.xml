@@ -9,11 +9,22 @@
         <file name="Debug_hidden"/>
         <file name="Diff_hidden"/>
         <folder name="Edit">
-            <file name="com-projectswg-tools-csc-conversationeditor-actions-NewConvOption.instance_hidden"/>
+            <file name="org-netbeans-core-ui-options-filetypes-OpenAsAction.instance_hidden"/>
+            <file name="org-netbeans-core-ui-sysopen-SystemOpenAction.instance_hidden"/>
+            <file name="org-netbeans-modules-quicksearch-QuickSearchAction.instance_hidden"/>
+            <file name="org-netbeans-modules-search-FindInFilesAction.instance_hidden"/>
+            <file name="org-netbeans-modules-search-ReplaceInFilesAction.instance_hidden"/>
+            <file name="org-openide-actions-CopyAction.instance_hidden"/>
+            <file name="org-openide-actions-CutAction.instance_hidden"/>
+            <file name="org-openide-actions-DeleteAction.instance_hidden"/>
+            <file name="org-openide-actions-FindAction.instance_hidden"/>
+            <file name="org-openide-actions-GotoAction.instance_hidden"/>
+            <file name="org-openide-actions-PasteAction.instance_hidden"/>
+            <file name="org-openide-actions-RedoAction.instance_hidden"/>
+            <file name="org-openide-actions-ReplaceAction.instance_hidden"/>
+            <file name="org-openide-actions-UndoAction.instance_hidden"/>
         </folder>
         <folder name="File">
-            <file name="com-projectswg-tools-csc-conversationeditor-actions-CompileConvScript.instance_hidden"/>
-            <file name="com-projectswg-tools-csc-conversationeditor-actions-NewConvEnd.instance_hidden"/>
             <file name="org-netbeans-modules-print-action-PageSetupAction.instance_hidden"/>
             <file name="org-netbeans-modules-print-action-PrintAction.instance_hidden"/>
             <file name="org-netbeans-modules-project-ui-actions-CloseAllProjectsAction.instance_hidden"/>

@@ -23,6 +23,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     private String name = "";
     private String scenePath = "";
+    private boolean loaded = false;
     
     private int id = 1;
     
@@ -35,11 +36,11 @@ public class SceneView extends GraphScene<ConversationNode, String>{
         mainLayer = new LayerWidget(this);
         addChild(mainLayer);
         
-        getActions().addAction(ActionFactory.createZoomAction());
-        getActions().addAction(ActionFactory.createWheelPanAction());
         connectionLayer = new LayerWidget(this);
         addChild(connectionLayer);
         
+        getActions().addAction(ActionFactory.createZoomAction());
+        getActions().addAction(ActionFactory.createWheelPanAction());
         this.mgr = mgr;
         
     }
@@ -128,6 +129,14 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public void setLoaded(boolean loaded) {
+        this.loaded = loaded;
+    }
+    
+    public boolean isLoaded() {
+        return loaded;
     }
     
     public LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> getConversationLinks() {

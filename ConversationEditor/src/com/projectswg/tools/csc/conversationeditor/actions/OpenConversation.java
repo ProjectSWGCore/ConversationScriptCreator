@@ -3,6 +3,7 @@ package com.projectswg.tools.csc.conversationeditor.actions;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
 import com.projectswg.tools.csc.conversationeditor.SceneSaver;
 import com.projectswg.tools.csc.conversationeditor.SceneView;
+import com.projectswg.tools.csc.conversationeditor.wizard.CompileWizardAction;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -17,9 +18,9 @@ import org.openide.awt.ActionRegistration;
 import org.openide.filesystems.FileChooserBuilder;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.actions.SystemAction;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 @ActionID(category = "File", id = "org.mycore.OpenFileAction")
@@ -44,10 +45,14 @@ public final class OpenConversation implements ActionListener {
             open(toAdd, editor);
             editor.open();
             editor.requestActive();
+            
         }
     }
     
     public static void open(File openFile, EditorTopComponent editor) {
+        if (editor.getScene().isLoaded())
+            return;
+        
         try {
             if (!openFile.getName().endsWith(".xml")) {
                 System.out.println("Not a valid Conversation Editor file!");
@@ -78,10 +83,11 @@ public final class OpenConversation implements ActionListener {
             }
             scene.setSceneName(openFile.getName().split(".xml")[0]);
             scene.setScenePath(openFile.getAbsolutePath());
-            
+
             saver.deserializeData(scene, sceneNode);
             editor.setName(scene.getSceneName());
             
+            scene.setLoaded(true);
         } catch (ParserConfigurationException | SAXException | IOException ex) {
             Exceptions.printStackTrace(ex);
         }   
