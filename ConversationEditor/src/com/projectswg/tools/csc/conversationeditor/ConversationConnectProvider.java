@@ -1,6 +1,8 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.EndNode;
 import java.awt.Point;
 import javax.swing.JOptionPane;
 import org.netbeans.api.visual.action.ConnectProvider;
@@ -42,34 +44,17 @@ public class ConversationConnectProvider implements ConnectProvider {
     @Override
     public void createConnection(Widget source, Widget target) {
         if (source instanceof ConversationWidget && target instanceof ConversationWidget) {
-            if (((ConversationWidget)source).getAttachedNode().isEndNode()) {
+            if (((ConversationWidget)source).getAttachedNode() instanceof EndNode) {
                 JOptionPane.showMessageDialog(null, "Cannot attach end conversation node to responses/options!", "Conversation Script Creator", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             ConversationNode cSource = ((ConversationWidget) source).getAttachedNode();
             ConversationNode cTarget = ((ConversationWidget) target).getAttachedNode();
             
-            if (cSource.isOption()) {
-                if (cTarget.isOption())
-                    return;
-                
-                else if (cTarget.isStartNode())
-                    return;
-                
-            } else if (cSource.isStartNode()) {
-                if (cTarget.isEndNode())
-                    return;
-            } else if (cSource.isEndNode()) {
+            // TODO: messages for each linking type
+            if (!cSource.doesLink(cTarget))
                 return;
-                
-            } else { // Response nodes
-                if (cTarget.isEndNode())
-                    return;
-                
-                else if (cTarget.isStartNode())
-                    return;
-            }
-
+            
             /* This won't work for preventing linking to same node 2x's. Need to find another way :(
             if (scene.getConnectionLayer().getChildren().size() > 0) {
                 for (Widget widget : scene.getConnectionLayer().getChildren()) {

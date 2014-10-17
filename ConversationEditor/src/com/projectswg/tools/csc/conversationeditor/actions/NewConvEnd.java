@@ -5,9 +5,9 @@
  */
 package com.projectswg.tools.csc.conversationeditor.actions;
 
-import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
-import com.projectswg.tools.csc.conversationeditor.SceneView;
+import com.projectswg.tools.csc.conversationeditor.nodes.EndNode;
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.openide.awt.ActionID;
@@ -45,7 +45,7 @@ public final class NewConvEnd implements ActionListener {
             return;
         
         int id = scene.getNextId();
-        scene.addNode(new ConversationNode("New End Conversation " + String.valueOf(id), false, id, true, false, 0));
+        scene.addNode(new EndNode("New End Conversation " + String.valueOf(id), id));
         
         scene.validate();
     }

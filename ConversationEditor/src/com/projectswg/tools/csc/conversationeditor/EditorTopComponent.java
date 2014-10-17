@@ -1,7 +1,9 @@
 package com.projectswg.tools.csc.conversationeditor;
 
-import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import com.projectswg.tools.csc.conversationeditor.actions.OpenConversation;
+import com.projectswg.tools.csc.conversationeditor.nodes.BeginNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.EndNode;
 import java.io.File;
 import javax.swing.JOptionPane;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -122,7 +124,7 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     }
     
     public void blankSlate() {
-        scene.addNode(new ConversationNode("Begin Conversation", false, 0, false, true, 0));
-        scene.addNode(new ConversationNode("End Conversation", false, 1, true, false, 0));
+        scene.addNode(new BeginNode("sdafsdf", 0));
+        scene.addNode(new EndNode("asdfasdfsaf", 1));
     }
 }

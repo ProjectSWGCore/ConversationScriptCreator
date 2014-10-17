@@ -1,5 +1,6 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.awt.Point;
 import java.beans.PropertyVetoException;
@@ -21,25 +22,14 @@ public class ConversationWidget extends IconNodeWidget implements LookupListener
     private final ExplorerManager mgr;
     private boolean selected;
     
-    public ConversationWidget(SceneView scene, final ExplorerManager mgr, final ConversationNode node, boolean endConversation) {
+    public ConversationWidget(SceneView scene, final ExplorerManager mgr, final ConversationNode node) {
         super(scene.getScene());
         
         this.attachedNode = node;
         this.mgr = mgr;
 
-        if (node.isEndNode()) {
-            setLabel(node.getStf());
-            setImage(ImageUtilities.loadImage("com/projectswg/tools/csc/conversationeditor/conversation_end.png"));
-        } else {
-            setLabel(node.getStf());
-            
-            if (node.isStartNode()) {
-                setImage(ImageUtilities.loadImage("com/projectswg/tools/csc/conversationeditor/conversation_begin.png"));
-            } else {
-                setImage(node.isOption() ? ImageUtilities.loadImage("com/projectswg/tools/csc/conversationeditor/conversation_option.png") 
-                                        : ImageUtilities.loadImage("com/projectswg/tools/csc/conversationeditor/conversation_response.png"));
-            }
-        }
+        setLabel(node.getStf());
+        setImage(ImageUtilities.loadImage(node.getImageStr()));
 
         // Alignment/pos/ori
         getLabelWidget().setAlignment(LabelWidget.Alignment.CENTER);

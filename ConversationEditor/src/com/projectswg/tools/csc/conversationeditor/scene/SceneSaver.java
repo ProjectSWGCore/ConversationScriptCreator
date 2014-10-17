@@ -1,6 +1,11 @@
-package com.projectswg.tools.csc.conversationeditor;
+package com.projectswg.tools.csc.conversationeditor.scene;
 
+import com.projectswg.tools.csc.conversationeditor.ConversationWidget;
+import com.projectswg.tools.csc.conversationeditor.nodes.BeginNode;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.EndNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.OptionNode;
+import com.projectswg.tools.csc.conversationeditor.nodes.ResponseNode;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -33,6 +38,7 @@ public class SceneSaver {
     private static final String LOCKED = "locked";
     private static final String STF = "stf";
     private static final String OPTION_ID = "optionId";
+    private static final String TEXT = "txt";
     
     private static final String VERSION_VALUE_1 = "1.0"; // NOI18N
 
@@ -60,14 +66,7 @@ public class SceneSaver {
                     if (location != null) {
                         Node dataXMLNode = file.createElement(NODE_NODE);
                         
-                        if (node.isOption())
-                            setAttribute(file, dataXMLNode, TYPE, "option");
-                        else if (!node.isEndNode() && !node.isStartNode())
-                            setAttribute(file, dataXMLNode, TYPE, "response");
-                        else if (node.isEndNode())
-                            setAttribute(file, dataXMLNode, TYPE, "end");
-                        else
-                            setAttribute(file, dataXMLNode, TYPE, "begin");
+                        setAttribute(file, dataXMLNode, TYPE, node.getType());
                         
                         setAttribute(file, dataXMLNode, TARGETS, getTargets(conversationLinks, node));
 
@@ -76,7 +75,10 @@ public class SceneSaver {
                         setAttribute(file, dataXMLNode, Y_NODE, Integer.toString(location.y));
                         setAttribute(file, dataXMLNode, LOCKED, Boolean.toString(node.isLocked()));
                         setAttribute(file, dataXMLNode, STF, node.getStf());
-                        setAttribute(file, dataXMLNode, OPTION_ID, Integer.toString(node.getOptionId()));
+                        
+                        for (HashMap.Entry<String, Object> entry : node.getAttributes().entrySet()) {
+                            setAttribute(file, dataXMLNode, entry.getKey(), entry.getValue().toString());
+                        }
                         
                         sceneXMLNode.appendChild(dataXMLNode);
                     }
@@ -135,21 +137,22 @@ public class SceneSaver {
                 String targets = getAttributeValue(node, TARGETS);
                 String stf = getAttributeValue(node, STF);
                 String type = getAttributeValue(node, TYPE);
+                String txt = getAttributeValue(node, TEXT);
                 
                 ConversationWidget widget = null;
                 // ConversationNode(String stf, boolean isOption, int id, boolean isEndNode, boolean isStartNode, int optionId)
                 switch (type) {
-                    case "option":
-                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, true, nodeID, false, false, optionId));
+                    case ConversationNode.OPTION:
+                        widget = (ConversationWidget) scene.addNode(new OptionNode(stf, nodeID, optionId));
                         break;
-                    case "response":
-                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, false, false, optionId));
+                    case ConversationNode.RESPONSE:
+                        widget = (ConversationWidget) scene.addNode(new ResponseNode(stf, nodeID));
                         break;
-                    case "begin":
-                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, false, true, optionId));
+                    case ConversationNode.BEGIN:
+                        widget = (ConversationWidget) scene.addNode(new BeginNode(stf, nodeID));
                         break;
-                    case "end":
-                        widget = (ConversationWidget) scene.addNode(new ConversationNode(stf, false, nodeID, true, false, optionId));
+                    case ConversationNode.END:
+                        widget = (ConversationWidget) scene.addNode(new EndNode(stf, nodeID));
                         break;
                 }
 

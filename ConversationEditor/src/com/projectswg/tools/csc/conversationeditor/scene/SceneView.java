@@ -1,5 +1,8 @@
-package com.projectswg.tools.csc.conversationeditor;
+package com.projectswg.tools.csc.conversationeditor.scene;
 
+import com.projectswg.tools.csc.conversationeditor.ConversationLookFeel;
+import com.projectswg.tools.csc.conversationeditor.ConversationWidget;
+import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -49,7 +52,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     @Override
     protected Widget attachNodeWidget(ConversationNode n) {
         
-        final ConversationWidget widget = new ConversationWidget(this, mgr, n, n.isEndNode());
+        final ConversationWidget widget = new ConversationWidget(this, mgr, n);
         widget.getActions().addAction(createObjectHoverAction());
         
         n.addPropertyChangeListener(new PropertyChangeListener() {

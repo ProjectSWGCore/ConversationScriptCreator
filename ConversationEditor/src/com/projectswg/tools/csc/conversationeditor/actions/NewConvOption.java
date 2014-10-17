@@ -1,8 +1,8 @@
 package com.projectswg.tools.csc.conversationeditor.actions;
 
-import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
-import com.projectswg.tools.csc.conversationeditor.SceneView;
+import com.projectswg.tools.csc.conversationeditor.nodes.OptionNode;
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.openide.awt.ActionID;
@@ -40,7 +40,7 @@ public final class NewConvOption implements ActionListener {
             return;
         
         int id = scene.getNextId();
-        scene.addNode(new ConversationNode("New Conversation Option " + String.valueOf(id), true, id, false, false, 0));
+        scene.addNode(new OptionNode("New Conversation Option " + String.valueOf(id), id));
         
         scene.validate();
     }

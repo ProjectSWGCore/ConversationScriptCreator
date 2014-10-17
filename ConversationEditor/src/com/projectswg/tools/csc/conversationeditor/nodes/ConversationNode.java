@@ -1,6 +1,7 @@
 package com.projectswg.tools.csc.conversationeditor.nodes;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
@@ -8,169 +9,121 @@ import org.openide.nodes.Sheet;
 import org.openide.util.Lookup;
 
 public class ConversationNode extends AbstractNode implements Lookup.Provider {
-    private int id;
-    private int optionId;
-    private String displayText;
+
+    private final int id;
     private String stf;
-    private boolean option;
     private boolean locked;
-    private boolean compiled;
-    private boolean endNode;
-    private boolean startNode;
     
-    public ConversationNode(String stf, boolean isOption, int id, boolean isEndNode, boolean isStartNode, int optionId) {
+    private final Sheet sheet;
+    private final String imageStr;
+    private final String type;
+    
+    public static final String OPTION = "Option";
+    public static final String RESPONSE = "Response";
+    public static final String END = "End";
+    public static final String BEGIN = "Begin";
+    
+    HashMap<String, Object> specificAttrs = new HashMap<>();
+    
+    public ConversationNode(String imageStr, String type, String stf, int id) {
         super(Children.LEAF);
         
-        this.stf = stf;
-        this.option = isOption;
-        this.displayText = "";
-        this.endNode = isEndNode;
-        this.startNode = isStartNode;
-        this.optionId = optionId;
         this.id = id;
-        
-        // Properties Window
-        if (!isStartNode)
-            setDisplayName("Conversation " + ((isOption) ? "Option "  + String.valueOf(id) : ((isEndNode) ? "End" : "Response "  + String.valueOf(id))));
-        else
-            setDisplayName("Begin Conversation Node");
-        
-        setShortDescription("Properties for this Conversation Node");        
-    }
-
-    public String getStf() {
-        return stf;
-    }
-
-    public void setStf(String stf) {
-        firePropertyChange("stf", this.stf, stf);
         this.stf = stf;
-    }
+        this.imageStr = imageStr;
+        this.sheet = super.createSheet();
+        
+        Sheet.Set properties = Sheet.createPropertiesSet();
 
-    public String getDisplayText() {
-        return displayText;
-    }
-
-    public void setDisplayText(String displayText) {
-        firePropertyChange("display", this.displayText, displayText);
-        this.displayText = displayText;
+        properties.setDisplayName("General");
+        properties.setShortDescription("Basic properties for all conversation nodes.");
+        
+        properties.put(new IdProperty(this));
+        properties.put(new StfProperty(this));
+        properties.put(new LockedProperty(this));
+        
+        sheet.put(properties);
+        
+        this.type = type;
+        
+        this.setDisplayName(stf);
     }
     
-    public boolean isOption() {
-        return option;
-    }
-
-    public void setOption(boolean option) {
-        this.option = option;
-    }
-
-    public boolean isLocked() {
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        this.locked = locked;
-    }
-
-    public int getId() {
+    public final int getId() {
         return id;
     }
     
-    public void setId(int id) {
-        this.id = id;
+    public final String getStf() {
+        return stf;
     }
     
-    public boolean isCompiled() {
-        return compiled;
-    }
-    
-    public void setCompiled(boolean compiled) {
-        this.compiled = compiled;
+    public final void setStf(String stf) {
+        this.stf = stf;
     }
 
-    public boolean isEndNode() {
-        return endNode;
+    public final boolean isLocked() {
+        return locked;
+    }
+    
+    public final void setLocked(boolean isLocked) {
+        this.locked = isLocked;
+    }
+    
+    public final String getImageStr() {
+        return imageStr;
+    }
+    
+    public final String getType() {
+        return type;
+    }
+    
+    public final void addNodeProperties(Sheet.Set properties) {
+        sheet.put(properties);
     }
 
-    public void setEndNode(boolean endNode) {
-        this.endNode = endNode;
-    }
-    
-    public boolean isStartNode() {
-        return this.startNode;
-    }
-    
-    public void setStartNode(boolean startNode) {
-        this.startNode = startNode;
-    }
-    
-    public int getOptionId() {
-        return this.optionId;
-    }
-    
-    public void setOptionId(int optionId) {
-        this.optionId = optionId;
+    public boolean doesLink(ConversationNode target) {
+        return true;
     }
     
     @Override
-    protected Sheet createSheet() {
-        Sheet sheet = super.createSheet();
-        Sheet.Set set = Sheet.createPropertiesSet();
-        
-        set.put(new IdProperty(this));
-        set.put(new StfProperty(this)); 
-        set.put(new DisplayProperty(this));        
-        if (!endNode) {
-            set.put(new TypeProperty(this));
-            
-            if (option) {
-                set.put(new OptionIdProperty(this));
-            }
-        }
-        set.put(new LockedProperty(this));
-        
-        sheet.put(set);
+    protected final Sheet createSheet() {
         return sheet;
     }
+    
+    public final static String getImgDirectory() {
+        return "com/projectswg/tools/csc/conversationeditor/nodes/imgs/";
+    }
+    
+    public final Object addSpecificAttribute(String name, Object value) {
+        return specificAttrs.put(name, value);
+    }
+    
+    public HashMap<String, Object> getAttributes() {
+        return specificAttrs;
+    }
 }
 
-class OptionIdProperty extends PropertySupport.ReadWrite<Integer> {
-
-    private final ConversationNode node;
-    
-    public OptionIdProperty(ConversationNode node) {
-        super("optionId", Integer.class, "Option ID", "ID used for displaying the order of this option in relation to the response (what option should show first in"
-                + "list of options)");
-        this.node = node;
-    }
-    
-    @Override
-    public Integer getValue() throws IllegalAccessException, InvocationTargetException {
-        return node.getOptionId();
-    }
-
-    @Override
-    public void setValue(Integer val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        node.setOptionId(val);
-    }
-    
-}
-
-class IdProperty extends PropertySupport.ReadOnly<Integer> {
+final class LockedProperty extends PropertySupport.ReadWrite<Boolean> {
     private final ConversationNode node;
 
-    public IdProperty(ConversationNode node) {
-        super("id", Integer.class, "Id", "Conversation Node Id");
+    public LockedProperty(ConversationNode node) {
+        super("locked", Boolean.class, "Locked", "Determines if this node can be moved.");
         this.node = node;
     }
 
     @Override
-    public Integer getValue() throws IllegalAccessException, InvocationTargetException {
-        return node.getId();
+    public Boolean getValue() throws IllegalAccessException, InvocationTargetException {
+        return node.isLocked();
+    }
+
+    @Override
+    public void setValue(Boolean val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        node.setLocked(val);
     }
     
 }
-class StfProperty extends PropertySupport.ReadWrite<String> {
+
+final class StfProperty extends PropertySupport.ReadWrite<String> {
 
     private final ConversationNode node;
     
@@ -191,62 +144,16 @@ class StfProperty extends PropertySupport.ReadWrite<String> {
     }
 }
 
-class TypeProperty extends PropertySupport.ReadOnly<Boolean> {
-
+final class IdProperty extends PropertySupport.ReadOnly<Integer> {
     private final ConversationNode node;
-    
-    public TypeProperty(ConversationNode node) {
-        super("option", Boolean.class, "Option", "The conversation node is a response or a option");
-        this.node = node;
-    }
-    
-    @Override
-    public Boolean getValue() throws IllegalAccessException, InvocationTargetException {
-        return node.isOption();
-    }
-    
-    @Override
-    public void setValue(Boolean val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        node.setOption(val);
-    }
-}
 
-class DisplayProperty extends PropertySupport.ReadWrite<String> {
-    private final ConversationNode node;
-    
-    public DisplayProperty(ConversationNode node) {
-        super ("display", String.class, "Text", "Optional text. This won't affect anything and can be left blank.\n" +
-                "You can use this for entering the value of a key from the coresponding STF for quick reference.");
+    public IdProperty(ConversationNode node) {
+        super("id", Integer.class, "Id", "Conversation Node Id");
         this.node = node;
     }
 
     @Override
-    public String getValue() throws IllegalAccessException, InvocationTargetException {
-        return node.getDisplayText();
-    }
-
-    @Override
-    public void setValue(String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        node.setDisplayText(val);
-    }
-}
-
-class LockedProperty extends PropertySupport.ReadWrite<Boolean> {
-    private final ConversationNode node;
-
-    public LockedProperty(ConversationNode node) {
-        super("locked", Boolean.class, "Locked", "Determines if this node can be moved.");
-        this.node = node;
-    }
-
-    @Override
-    public Boolean getValue() throws IllegalAccessException, InvocationTargetException {
-        return node.isLocked();
-    }
-
-    @Override
-    public void setValue(Boolean val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-        node.setLocked(val);
-    }
-    
+    public Integer getValue() throws IllegalAccessException, InvocationTargetException {
+        return node.getId();
+    }   
 }

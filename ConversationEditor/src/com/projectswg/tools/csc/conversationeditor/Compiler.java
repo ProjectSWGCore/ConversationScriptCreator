@@ -1,8 +1,8 @@
 package com.projectswg.tools.csc.conversationeditor;
 
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
-import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
-import com.projectswg.tools.csc.conversationeditor.SceneView;
+import com.projectswg.tools.csc.conversationeditor.nodes.OptionNode;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -48,7 +48,7 @@ public class Compiler {
             LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> conversationLinks = scene.getConversationLinks();
             
             for (Map.Entry<ConversationNode, ArrayList<ConversationNode>> entry : conversationLinks.entrySet()) {
-                if (entry.getKey().isStartNode()) {
+                if (entry.getKey().getType().equals(ConversationNode.BEGIN)) {
                     createOptionsAndHandler(bw, entry.getKey(), entry.getValue(), 1, conversationLinks);
                     break;
                 }
@@ -82,28 +82,42 @@ public class Compiler {
         
         int count = handleNum + 1;
         for (ConversationNode selectedOption : options) {
-            bw.write(indent4 + (options.indexOf(selectedOption) > 0 ? "elif" : "if") + " selection == " + options.indexOf(selectedOption) + ":\n");
-            if (conversationLinks.containsKey(selectedOption)) {
-                if (comments) bw.write(indent8 + "# " + (selectedOption.getDisplayText().equals("") ? selectedOption.getStf() : selectedOption.getDisplayText()) + "\n");
+            if (!(selectedOption instanceof OptionNode))
+                continue;
+                
+            OptionNode option = (OptionNode) selectedOption;
+            
+            bw.write(indent4 + (options.indexOf(option) > 0 ? "elif" : "if") + " selection == " + options.indexOf(option) + ":\n");
+            if (conversationLinks.containsKey(option)) {
+                
+                if (comments) bw.write(indent8 + "# " + (option.getDisplayText().equals("") ? option.getStf() : option.getDisplayText()) + "\n");
+                
                 for (ConversationNode handleNode : conversationLinks.get(selectedOption)) {
-                    if (!handleNode.isOption() && !handleNode.isEndNode()) {
-                        if (conversationLinks.get(handleNode) == null) {
-                            bw.write(indent8 + "# NULL Error printing out handle for " + handleNode.getStf());
-                        } else {
-                            createOptions(bw, conversationLinks.get(handleNode), count++, indent8);
-                            bw.write(indent8 + "core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@conversation/" 
-                                    + handleNode.getStf() + "')\n");
-                            handleFuncs.put(handleNode, conversationLinks.get(handleNode)); // Put these nodes in list so we can create the handlers later.
-                        }
-                    } else if (handleNode.isEndNode()) {
-                        if (handleNode.getStf().contains(":")) {
-                            String[] split = handleNode.getStf().split(":");
-                            bw.write(indent8 + "core.conversationService.sendStopConversation(actor, npc, 'conversation/" + split[0] + "', '" + split[1] + "')\n");
-                        } else {
-                            bw.write(indent8 + "# Couldn't write end response because of bad format!");
-                        }
+                    switch(handleNode.getType()) {
+                        
+                        case ConversationNode.RESPONSE:
+                            if (conversationLinks.get(handleNode) == null) {
+                                bw.write(indent8 + "# NULL Error printing out handle for " + handleNode.getStf());
+                            } else {
+                                createOptions(bw, conversationLinks.get(handleNode), count++, indent8);
+                                bw.write(indent8 + "core.conversationService.sendConversationMessage(actor, npc, OutOfBand.ProsePackage('@conversation/"
+                                        + handleNode.getStf() + "')\n");
+                                handleFuncs.put(handleNode, conversationLinks.get(handleNode)); // Put these nodes in list so we can create the handlers later.
+                            }
+                            break;
+                            
+                        case ConversationNode.END:
+                            if (handleNode.getStf().contains(":")) {
+                                String[] split = handleNode.getStf().split(":");
+                                bw.write(indent8 + "core.conversationService.sendStopConversation(actor, npc, 'conversation/" + split[0] + "', '" + split[1] + "')\n");
+                            } else {
+                                bw.write(indent8 + "# Couldn't write end response because of bad format!");
+                            }
+                            break;
+                            
                     }
                 }
+                
             }
             bw.write(indent8 + "return\n");
             bw.newLine();
@@ -129,7 +143,7 @@ public class Compiler {
         if (options.size() > 1) {
             for (ConversationNode option : options) {
                 bw.write(indent4 + "options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/"  + option.getStf() +"'), " 
-                        + String.valueOf(option.getOptionId()) + ")\n");
+                        + String.valueOf(((OptionNode)option).getNumber()) + ")\n");
             }
         } else { 
             for (ConversationNode option : options) {
@@ -151,7 +165,7 @@ public class Compiler {
         if (options.size() > 1) {
             ArrayList<ConversationNode> orderedOptions = new ArrayList<>();
             for (ConversationNode unOrdered : options) {
-                orderedOptions.add(unOrdered.getOptionId(), unOrdered);
+                orderedOptions.add(((OptionNode)unOrdered).getNumber(), unOrdered);
             }
             for (ConversationNode option : orderedOptions) {
                 bw.write(space + "options.add(ConversationOption(OutOfBand.ProsePackage('@conversation/" + option.getStf() +"'), " + options.indexOf(option) + ")\n");

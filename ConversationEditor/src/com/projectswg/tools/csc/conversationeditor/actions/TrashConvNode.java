@@ -5,16 +5,14 @@
  */
 package com.projectswg.tools.csc.conversationeditor.actions;
 
-import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
 import com.projectswg.tools.csc.conversationeditor.ConversationWidget;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
-import com.projectswg.tools.csc.conversationeditor.SceneView;
+import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.scene.SceneView;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import javax.swing.SwingUtilities;
 import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.Widget;
