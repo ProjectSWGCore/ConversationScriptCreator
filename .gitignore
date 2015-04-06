@@ -18,3 +18,5 @@ hs_err_pid*
 /nbproject/private/
 /ConversationEditor/nbproject/private/
 /ConversationCompiler/nbproject/private/
+/mina-core/build/
+/mina-core/nbproject/private/

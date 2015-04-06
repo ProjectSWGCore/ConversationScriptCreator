@@ -124,7 +124,7 @@ public final class EditorTopComponent extends TopComponent implements ExplorerMa
     }
     
     public void blankSlate() {
-        scene.addNode(new BeginNode("sdafsdf", 0));
-        scene.addNode(new EndNode("asdfasdfsaf", 1));
+        scene.addNode(new BeginNode(scene.getStfFile(), 0));
+        scene.addNode(new EndNode(scene.getStfFile(), 1));
     }
 }

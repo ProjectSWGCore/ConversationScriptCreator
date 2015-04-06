@@ -28,7 +28,7 @@ public class ConversationWidget extends IconNodeWidget implements LookupListener
         this.attachedNode = node;
         this.mgr = mgr;
 
-        setLabel(node.getStf());
+        setLabel(node.getStf().toString());
         setImage(ImageUtilities.loadImage(node.getImageStr()));
 
         // Alignment/pos/ori

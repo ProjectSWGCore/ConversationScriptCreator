@@ -45,7 +45,7 @@ public final class NewConvEnd implements ActionListener {
             return;
         
         int id = scene.getNextId();
-        scene.addNode(new EndNode("New End Conversation " + String.valueOf(id), id));
+        scene.addNode(new EndNode(scene.getStfFile(), id));
         
         scene.validate();
     }

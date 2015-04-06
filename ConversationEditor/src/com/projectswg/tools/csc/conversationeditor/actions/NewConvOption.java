@@ -40,7 +40,7 @@ public final class NewConvOption implements ActionListener {
             return;
         
         int id = scene.getNextId();
-        scene.addNode(new OptionNode("New Conversation Option " + String.valueOf(id), id));
+        scene.addNode(new OptionNode(scene.getStfFile(), id));
         
         scene.validate();
     }

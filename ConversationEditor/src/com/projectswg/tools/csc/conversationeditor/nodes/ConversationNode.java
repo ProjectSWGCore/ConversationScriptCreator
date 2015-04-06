@@ -1,17 +1,22 @@
 package com.projectswg.tools.csc.conversationeditor.nodes;
 
+import com.projectswg.tools.csc.conversationeditor.nodes.editors.StfEditor;
+import com.projectswg.tools.csc.conversationeditor.stf.Stf;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.Children;
 import org.openide.nodes.PropertySupport;
 import org.openide.nodes.Sheet;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 
 public class ConversationNode extends AbstractNode implements Lookup.Provider {
 
     private final int id;
-    private String stf;
+
+    private Stf stf;
+    
     private boolean locked;
     
     private final Sheet sheet;
@@ -29,7 +34,7 @@ public class ConversationNode extends AbstractNode implements Lookup.Provider {
         super(Children.LEAF);
         
         this.id = id;
-        this.stf = stf;
+        this.stf = new Stf(stf);
         this.imageStr = imageStr;
         this.sheet = super.createSheet();
         
@@ -39,25 +44,31 @@ public class ConversationNode extends AbstractNode implements Lookup.Provider {
         properties.setShortDescription("Basic properties for all conversation nodes.");
         
         properties.put(new IdProperty(this));
-        properties.put(new StfProperty(this));
+        try {
+            properties.put(new StfProperty(this));
+        } catch (NoSuchMethodException ex) {
+            Exceptions.printStackTrace(ex);
+        }
         properties.put(new LockedProperty(this));
         
         sheet.put(properties);
         
         this.type = type;
         
-        this.setDisplayName(stf);
+        //this.setDisplayName("New Node"); Controls name shown in properties window
     }
     
     public final int getId() {
         return id;
     }
     
-    public final String getStf() {
+    public Stf getStf() {
+        firePropertyChange("stf", stf, stf); // setStf is never used when changing property, so using getStf instead
         return stf;
     }
     
-    public final void setStf(String stf) {
+    public void setStf(Stf stf) {
+        //firePropertyChange("Stf", this.stf.toString(), stf.toString());
         this.stf = stf;
     }
 
@@ -66,6 +77,7 @@ public class ConversationNode extends AbstractNode implements Lookup.Provider {
     }
     
     public final void setLocked(boolean isLocked) {
+        firePropertyChange("locked", this.locked, isLocked);
         this.locked = isLocked;
     }
     
@@ -123,17 +135,20 @@ final class LockedProperty extends PropertySupport.ReadWrite<Boolean> {
     
 }
 
-final class StfProperty extends PropertySupport.ReadWrite<String> {
+final class StfProperty extends PropertySupport.Reflection<Stf> {
 
     private final ConversationNode node;
     
-    public StfProperty(ConversationNode node) {
-        super("stf", String.class, "STF", "STF file for this conversation node, excluding conversation/. Ex: conversation/c_newbie_mentor:s_109 would be c_newbie_mentor:s_109");
-        this.setValue("oneline", true);
+    public StfProperty(ConversationNode node) throws NoSuchMethodException {
+        super(node, Stf.class, "Stf");
+        //super("stf", String.class, "STF", "STF file for this conversation node, excluding conversation/. Ex: conversation/c_newbie_mentor:s_109 would be c_newbie_mentor:s_109");
+        //this.setValue("oneline", true);
+        
+        this.setPropertyEditorClass(StfEditor.class);
         this.node = node;
     }
     
-    @Override
+   /* @Override
     public String getValue() throws IllegalAccessException, InvocationTargetException {
         return node.getStf();
     }
@@ -141,7 +156,7 @@ final class StfProperty extends PropertySupport.ReadWrite<String> {
     @Override
     public void setValue(String val) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         node.setStf(String.valueOf(val));
-    }
+    }*/
 }
 
 final class IdProperty extends PropertySupport.ReadOnly<Integer> {

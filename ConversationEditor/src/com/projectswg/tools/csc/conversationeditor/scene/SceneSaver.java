@@ -74,7 +74,7 @@ public class SceneSaver {
                         setAttribute(file, dataXMLNode, X_NODE, Integer.toString(location.x));
                         setAttribute(file, dataXMLNode, Y_NODE, Integer.toString(location.y));
                         setAttribute(file, dataXMLNode, LOCKED, Boolean.toString(node.isLocked()));
-                        setAttribute(file, dataXMLNode, STF, node.getStf());
+                        setAttribute(file, dataXMLNode, STF, node.getDisplayName());
                         
                         for (HashMap.Entry<String, Object> entry : node.getAttributes().entrySet()) {
                             setAttribute(file, dataXMLNode, entry.getKey(), entry.getValue().toString());

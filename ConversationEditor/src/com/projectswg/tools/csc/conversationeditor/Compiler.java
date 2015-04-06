@@ -107,12 +107,9 @@ public class Compiler {
                             break;
                             
                         case ConversationNode.END:
-                            if (handleNode.getStf().contains(":")) {
-                                String[] split = handleNode.getStf().split(":");
-                                bw.write(indent8 + "core.conversationService.sendStopConversation(actor, npc, 'conversation/" + split[0] + "', '" + split[1] + "')\n");
-                            } else {
-                                bw.write(indent8 + "# Couldn't write end response because of bad format!");
-                            }
+                            
+                            String[] split = handleNode.getStf().toString().split(":");
+                            bw.write(indent8 + "core.conversationService.sendStopConversation(actor, npc, 'conversation/" + split[0] + "', '" + split[1] + "')\n");
                             break;
                             
                     }

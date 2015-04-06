@@ -4,8 +4,10 @@ import com.projectswg.tools.csc.conversationeditor.ConversationLookFeel;
 import com.projectswg.tools.csc.conversationeditor.ConversationWidget;
 import com.projectswg.tools.csc.conversationeditor.EditorTopComponent;
 import com.projectswg.tools.csc.conversationeditor.nodes.ConversationNode;
+import com.projectswg.tools.csc.conversationeditor.stf.StfTable;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,6 +18,7 @@ import org.netbeans.api.visual.widget.ConnectionWidget;
 import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.openide.explorer.ExplorerManager;
+import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -28,6 +31,10 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     private String name = "";
     private String scenePath = "";
     private boolean loaded = false;
+    
+    private String stfFile = "None";
+    
+    private StfTable stfTable;
     
     private int id = 1;
     
@@ -50,7 +57,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     }
     
     @Override
-    protected Widget attachNodeWidget(ConversationNode n) {
+    protected Widget attachNodeWidget(final ConversationNode n) {
         
         final ConversationWidget widget = new ConversationWidget(this, mgr, n);
         widget.getActions().addAction(createObjectHoverAction());
@@ -59,6 +66,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
 
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
+
                 TopComponent component = WindowManager.getDefault().findTopComponent("EditorTopComponent");
                 if (component == null || !(component instanceof EditorTopComponent))
                     return;
@@ -69,9 +77,13 @@ public class SceneView extends GraphScene<ConversationNode, String>{
                 if (scene == null)
                     return;
                 
+                widget.getLabelWidget().setLabel(n.getStf().toString());
+                widget.repaint();
+                scene.validate();
+                
                 switch(evt.getPropertyName()) {
                     case "stf":
-                        widget.getLabelWidget().setLabel((String) evt.getNewValue());
+                        widget.getLabelWidget().setLabel(evt.getNewValue().toString());
                         widget.repaint();
                         
                         scene.validate();
@@ -79,6 +91,7 @@ public class SceneView extends GraphScene<ConversationNode, String>{
                 }
             }
         });
+
         mainLayer.addChild(widget);
         return widget;
     }
@@ -141,6 +154,25 @@ public class SceneView extends GraphScene<ConversationNode, String>{
     
     public boolean isLoaded() {
         return loaded;
+    }
+    
+    public String getStfFile() {
+        return stfFile;
+    }
+
+    public void setStfFile(String stfFile) {
+        this.stfFile = stfFile;
+        StfTable stfTable = new StfTable();
+        try {
+            stfTable.readFile(stfFile);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        this.stfTable = stfTable;
+    }
+    
+    public StfTable getStfTable() {
+        return stfTable;
     }
     
     public LinkedHashMap<ConversationNode, ArrayList<ConversationNode>> getConversationLinks() {
